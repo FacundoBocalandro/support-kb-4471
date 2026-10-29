@@ -1,0 +1,61 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: Facundo Bocalandro
+status: open
+reviewed: 2026-10-28
+signature: Facundo Bocalandro
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/FacundoBocalandro/support-kb-4471/issues';
+  const tickets = { parser: `${repo}/1`, hint: `${repo}/2`, shift: `${repo}/3` };
+</script>
+
+[#4471](/kb/incidents/4471) says one issue with one fix. The reports in it show three problems.
+Each problem needs its own fix, so each one has its own ticket. The counts below come from the
+reports at render time.
+
+<ProblemTable ticket={4471} {tickets} />
+
+<Callout kind="warn">
+The fix queued for #4471 changes the shared parser. It does not close the other two tickets.
+</Callout>
+
+## The three problems
+
+**`parser`: the parser reads dates month first.** Every tenant on file writes the day first. A
+date like 7/4 comes out as 4 July, not 7 April. The report shows the day and the month swapped.
+This comes in through the app, by email and through booking-v2 forms.
+
+**`hint`: the booking-v3 form shows the wrong hint.** The booking-v3 form prints `MM/DD/YYYY`
+under its date field. People at day-first tenants type the date month first, as the hint tells
+them. Then the form reads the date day first. This is a different bug from the parser, so the
+parser fix does not close these reports. Only reports from the form channel at booking-v3 tenants have
+this problem.
+
+**`shift`: the date moves by one day.** These reports do not show a swap. The date moves one day
+back or forward: Tuesday shows as Monday, two clients in different time zones get different days,
+and an invite arrives before the booking. This looks like a time zone conversion bug. The desk
+listed these reports in its notes, but the #4471 table still counts them under `parser`.
+
+## How the reports were placed
+
+1. Remove the reports that the export repeats. One id is one report.
+2. Put each report that the desk read as a one-day move under `shift`.
+3. Place every other report by its tenant: its locale and its booking form
+   ([causes.ts](/kb/triage/dedupe)). Do not use the intake tag. Intake guesses the tag from the
+   browser of the reporter, and the "intake tag wrong" column shows how often that guess is wrong.
+
+## Why one ticket held three problems
+
+[Decision 0001](/kb/decisions/0001-dedupe-by-subject) merges reports when their subject lines
+match. The same subject lines come in for all three problems, for example "Wrong day on the
+invite", so subject matching put all of them in #4471. A subject tells you what the reporter saw.
+It does not tell you the cause.
+
+<RenderStamp {signature} />
