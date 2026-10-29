@@ -23,8 +23,18 @@ reports at render time.
 <ProblemTable ticket={4471} {tickets} />
 
 <Callout kind="warn">
-The fix queued for #4471 changes the shared parser. It does not close the other two tickets.
+Engineering closed #4471 on 5 October. `parser` is fixed (`fix(dates): parse dd/mm for eu
+locales`). `hint` will not be fixed, because the booking-v3 form is retired. `shift` is still
+open: the parser fix does not change the time zone conversion.
 </Callout>
+
+## Where each ticket stands
+
+| problem | ticket | state |
+|---|---|---|
+| `parser` | [#1](https://github.com/FacundoBocalandro/support-kb-4471/issues/1) | closed: fixed by `fix(dates): parse dd/mm for eu locales` |
+| `hint` | [#2](https://github.com/FacundoBocalandro/support-kb-4471/issues/2) | closed: won't fix, the booking-v3 form is retired |
+| `shift` | [#3](https://github.com/FacundoBocalandro/support-kb-4471/issues/3) | open: no fix yet |
 
 ## The three problems
 
