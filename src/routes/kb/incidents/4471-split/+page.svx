@@ -4,7 +4,7 @@ title: '#4471 · three problems, not one'
 owner: Facundo Bocalandro
 status: open
 reviewed: 2026-10-28
-signature: Facundo Bocalandro
+signature: v1.eyJzdWIiOiIxMTM2IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMzUzMzYsImV4cCI6MTc5MzMyMTczNn0.8_XhKsVtaXl8vXoE1SaTtV8ACgaMU158IqNAqa3sjxE
 ---
 
 <script>
