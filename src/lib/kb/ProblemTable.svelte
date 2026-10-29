@@ -1,7 +1,7 @@
 <script lang="ts">
   import reports from '#lib/data/reports-4471.json';
   import notes from '#lib/data/desk-notes.json';
-  import { type Report } from '#lib/kb/causes';
+  import { uniqueById, type Report } from '#lib/kb/causes';
   import { tenantOf } from '#lib/kb/locales';
   import { groupByProblem, type Problem } from '#lib/kb/problems';
 
@@ -10,7 +10,7 @@
 
   const merged = $derived((reports as Report[]).filter((r) => r.mergedInto === ticket));
   const groups = $derived(groupByProblem(merged, tenantOf, notes.oneDayMove));
-  const total = $derived(groups.reduce((n, g) => n + g.reports.length, 0));
+  const total = $derived(uniqueById(merged).length);
   const ticketName = (url: string) => `#${url.split('/').pop()}`;
 </script>
 
@@ -42,8 +42,15 @@
   </tbody>
 </table>
 
+{#each groups as g (g.problem)}
+  {#if g.shifted}
+    <p class="note">{g.shifted} of the <code>{g.problem}</code> reports are the <code>shift</code> problem: filed under <code>{g.problem}</code> by tenant, as the desk counts them, and counted again under <code>shift</code>.</p>
+  {/if}
+{/each}
+
 <style>
   .sum { font-size: 1.1rem; }
+  .note { color: var(--muted); font-size: 0.85em; }
   .open td { background: var(--warn-bg); }
   .open td:last-child { color: var(--warn); font-weight: 600; }
 </style>

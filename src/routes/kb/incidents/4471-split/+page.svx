@@ -41,15 +41,16 @@ this problem.
 **`shift`: the date moves by one day.** These reports do not show a swap. The date moves one day
 back or forward: Tuesday shows as Monday, two clients in different time zones get different days,
 and an invite arrives before the booking. This looks like a time zone conversion bug. The desk
-listed these reports in its notes, but the #4471 table still counts them under `parser`.
+listed these reports in its notes. The #4471 table counts them under `parser`, where they are
+filed by tenant. This page counts them the same way, and counts them again under `shift`.
 
 ## How the reports were placed
 
 1. Remove the reports that the export repeats. One id is one report.
-2. Put each report that the desk read as a one-day move under `shift`.
-3. Place every other report by its tenant: its locale and its booking form
-   ([causes.ts](/kb/triage/dedupe)). Do not use the intake tag. Intake guesses the tag from the
+2. Place each report by its tenant: its locale and its booking form
+   ([causes.ts](/kb/triage/dedupe)), as the desk does. Do not use the intake tag. Intake guesses the tag from the
    browser of the reporter, and the "intake tag wrong" column shows how often that guess is wrong.
+3. Count the reports that the desk read as a one-day move again under `shift`.
 
 ## Why one ticket held three problems
 

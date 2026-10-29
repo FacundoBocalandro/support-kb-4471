@@ -1,13 +1,9 @@
-// One problem per fix. causes.ts places a report by its tenant; the reports the desk read as a one-day
-// move (desk-notes.json) are a third bug, not the parser, so they get a problem of their own.
+// One problem per fix. Counted the way the desk counts (CauseTable): each report under the cause it is
+// filed under by tenant. The reports the desk read as a one-day move (desk-notes.json) stay where they
+// are filed and are counted again as `shift`, a third bug with a ticket of its own.
 import { causeOf, uniqueById, type Cause, type Report, type Tenant } from '#lib/kb/causes';
 
 export type Problem = Cause | 'shift' | 'unplaced';
-
-export function problemOf(r: Report, t: Tenant | undefined, shiftIds: readonly string[]): Problem {
-  if (shiftIds.includes(r.id)) return 'shift';
-  return causeOf(r, t) ?? 'unplaced';
-}
 
 export type ProblemGroup = {
   problem: Problem;
@@ -16,8 +12,10 @@ export type ProblemGroup = {
   channels: string[];
   firstSeen: string;
   lastSeen: string;
-  // Reports intake tagged with a different cause than the one they belong to.
+  // Reports intake tagged with a different cause than the one they are filed under.
   mistagged: number;
+  // Reports in this group that are also counted as `shift`.
+  shifted: number;
 };
 
 export function groupByProblem(
@@ -26,9 +24,10 @@ export function groupByProblem(
   shiftIds: readonly string[],
 ): ProblemGroup[] {
   const byProblem = new Map<Problem, Report[]>();
+  const add = (p: Problem, r: Report) => byProblem.set(p, [...(byProblem.get(p) ?? []), r]);
   for (const r of uniqueById(reports)) {
-    const p = problemOf(r, tenantOf(r), shiftIds);
-    byProblem.set(p, [...(byProblem.get(p) ?? []), r]);
+    add(causeOf(r, tenantOf(r)) ?? 'unplaced', r);
+    if (shiftIds.includes(r.id)) add('shift', r);
   }
   return [...byProblem.entries()]
     .map(([problem, rs]) => {
@@ -41,6 +40,7 @@ export function groupByProblem(
         firstSeen: days[0],
         lastSeen: days[days.length - 1],
         mistagged: problem === 'shift' ? 0 : rs.filter((r) => r.meta.intakeTag !== problem).length,
+        shifted: problem === 'shift' ? 0 : rs.filter((r) => shiftIds.includes(r.id)).length,
       };
     })
     .sort((a, b) => b.reports.length - a.reports.length);
